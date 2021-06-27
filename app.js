@@ -4,7 +4,24 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
 const incidentRouter = require('./routes/incidentRouter');
+
+const mongoose = require('mongoose');
+
+const url = 'mongodb://localhost:27017/e-vidence';
+const connect = mongoose.connect(url, {
+  //to avoid deprecation warnings
+  useCreateIndex: true,
+  useFindAndModify: false,
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+connect.then(() => console.log('Connected correctly to server'),
+  err => console.log(err)
+);
 
 var app = express();
 
@@ -18,6 +35,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
 app.use('/incidents', incidentRouter);
 
 // catch 404 and forward to error handler
