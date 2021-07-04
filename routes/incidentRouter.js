@@ -39,7 +39,6 @@ incidentRouter.route('/')
 });
 
 
-
 incidentRouter.route('/:incidentId')
 .get((req, res, next) => {
     Incident.findById(req.params.incidentId)
