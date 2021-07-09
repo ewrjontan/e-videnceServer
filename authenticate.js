@@ -41,7 +41,7 @@ exports.jwtPassport = passport.use(
 
 exports.verifyUser = passport.authenticate('jwt', {session: false});
 
-/*
+
 exports.verifyAdmin = function(req, res, next){
     console.log("xxxxx  test: xxxxxxxxxxxxx", req.user.admin);    
     if (req.user.admin){
@@ -51,4 +51,4 @@ exports.verifyAdmin = function(req, res, next){
         err.status = 403;
         return next(err);
     }
-};*/
+};

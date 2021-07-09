@@ -30,7 +30,7 @@ incidentRouter.route('/')
     res.statusCode = 403;
     res.end('PUT operation not supported on /incidents');
 })
-.delete(authenticate.verifyUser, (req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Incident.deleteMany()
     .then(response => {
         res.statusCode = 200;
@@ -56,7 +56,7 @@ incidentRouter.route('/:incidentId')
     res.statusCode = 403;
     res.end(`POST operation not supported on /incidents/${req.params.incidentId}`);
 })
-.put(authenticate.verifyUser, (req, res, next) => {
+.put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Incident.findByIdAndUpdate(req.params.incidentId, {
         $set: req.body
     }, { new: true})
@@ -67,7 +67,7 @@ incidentRouter.route('/:incidentId')
     })
     .catch(err => next(err));
 })
-.delete(authenticate.verifyUser, (req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Incident.findByIdAndDelete(req.params.incidentId)
     .then(response => {
         res.statusCode = 200;
@@ -124,7 +124,7 @@ incidentRouter.route('/:incidentId/items')
     res.statusCode = 403;
     res.end(`PUT operation not supported on /campsites/${req.params.incidentId}/items`);
 })
-.delete(authenticate.verifyUser, (req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     //deletes every document in collection
     Incident.findById(req.params.incidentId)
     .then(incident => {
@@ -216,7 +216,7 @@ incidentRouter.route('/:incidentId/items/:itemId')
         })
         .catch(err => next(err));        
     })
-    .delete(authenticate.verifyUser, (req, res, next) => {
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         //deletes every document in collection
         Incident.findById(req.params.incidentId)
         .then(incident => {
