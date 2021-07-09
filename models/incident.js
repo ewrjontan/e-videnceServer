@@ -18,6 +18,14 @@ const itemSchema = new Schema({
     date: {
         type: String,
         required: true
+    },
+    //for attaching user Id
+    /*collector: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },*/
+    collectedBy: {
+        type: String,
     }
 }, {
     timestamps: true

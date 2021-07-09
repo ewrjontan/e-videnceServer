@@ -1,11 +1,13 @@
 const express = require('express');
 const Incident = require('../models/incident');
+const authenticate = require('../authenticate');
+
 
 const incidentRouter = express.Router();
 
 
 incidentRouter.route('/')
-.get((req, res, next) => {
+.get(authenticate.verifyUser, (req, res, next) => {
     Incident.find()
     .then(incidents => {
         res.statusCode = 200;
@@ -14,7 +16,7 @@ incidentRouter.route('/')
     })
     .catch(err => next(err));
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     Incident.create(req.body)
     .then(incident => {
         console.log('Incident created ', incident);
@@ -24,11 +26,11 @@ incidentRouter.route('/')
     })
     .catch(err => next(err));
 })
-.put((req, res) => {
+.put(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
-    res.end('Need to change PUT operation not supported on /incidents');
+    res.end('PUT operation not supported on /incidents');
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, (req, res, next) => {
     Incident.deleteMany()
     .then(response => {
         res.statusCode = 200;
@@ -40,9 +42,8 @@ incidentRouter.route('/')
 
 
 
-
 incidentRouter.route('/:incidentId')
-.get((req, res, next) => {
+.get(authenticate.verifyUser, (req, res, next) => {
     Incident.findById(req.params.incidentId)
     .then(incident => {
         res.statusCode = 200;
@@ -51,11 +52,11 @@ incidentRouter.route('/:incidentId')
     })
     .catch(err => next(err));
 })
-.post((req, res) => {
+.post(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end(`POST operation not supported on /incidents/${req.params.incidentId}`);
 })
-.put((req, res, next) => {
+.put(authenticate.verifyUser, (req, res, next) => {
     Incident.findByIdAndUpdate(req.params.incidentId, {
         $set: req.body
     }, { new: true})
@@ -66,7 +67,7 @@ incidentRouter.route('/:incidentId')
     })
     .catch(err => next(err));
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, (req, res, next) => {
     Incident.findByIdAndDelete(req.params.incidentId)
     .then(response => {
         res.statusCode = 200;
@@ -83,7 +84,7 @@ For Items
 */
 
 incidentRouter.route('/:incidentId/items')
-.get((req, res, next) => {
+.get(authenticate.verifyUser, (req, res, next) => {
     Incident.findById(req.params.incidentId)
     .then(incident => {
         if (incident) {
@@ -98,10 +99,11 @@ incidentRouter.route('/:incidentId/items')
     })
     .catch(err => next(err));
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     Incident.findById(req.params.incidentId)
     .then(incident => {
         if (incident) {
+            req.body.collectedBy = req.user.firstname + " " + req.user.lastname;
             incident.items.push(req.body);
             incident.save()
             .then(incident => {
@@ -118,11 +120,11 @@ incidentRouter.route('/:incidentId/items')
     })
     .catch(err => next(err));
 })
-.put((req, res) => {
+.put(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end(`PUT operation not supported on /campsites/${req.params.incidentId}/items`);
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, (req, res, next) => {
     //deletes every document in collection
     Incident.findById(req.params.incidentId)
     .then(incident => {
@@ -149,7 +151,7 @@ incidentRouter.route('/:incidentId/items')
 
 
 incidentRouter.route('/:incidentId/items/:itemId')
-    .get((req, res, next) => {
+    .get(authenticate.verifyUser, (req, res, next) => {
         Incident.findById(req.params.incidentId)
         //.populate('comments.author')
         .then(incident => {
@@ -169,11 +171,11 @@ incidentRouter.route('/:incidentId/items/:itemId')
         })
         .catch(err => next(err));
     })
-    .post((req, res) => {
+    .post(authenticate.verifyUser, (req, res) => {
         res.statusCode = 403;
         res.end(`POST operation not supported on /incidents/${req.params.incidentId}/items/${req.params.itemId}`);
     })
-    .put((req, res, next) => {
+    .put(authenticate.verifyUser, (req, res, next) => {
         Incident.findById(req.params.incidentId)
         //.populate('comments.author')
         .then(incident => {
@@ -214,7 +216,7 @@ incidentRouter.route('/:incidentId/items/:itemId')
         })
         .catch(err => next(err));        
     })
-    .delete((req, res, next) => {
+    .delete(authenticate.verifyUser, (req, res, next) => {
         //deletes every document in collection
         Incident.findById(req.params.incidentId)
         .then(incident => {
