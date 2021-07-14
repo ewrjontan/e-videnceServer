@@ -84,7 +84,7 @@ For Items
 */
 
 incidentRouter.route('/:incidentId/items')
-.get(authenticate.verifyUser, (req, res, next) => {
+.get(authenticate.verifyUser,(req, res, next) => {
     Incident.findById(req.params.incidentId)
     .then(incident => {
         if (incident) {
@@ -99,7 +99,7 @@ incidentRouter.route('/:incidentId/items')
     })
     .catch(err => next(err));
 })
-.post(authenticate.verifyUser, (req, res, next) => {
+.post(authenticate.verifyUser,(req, res, next) => {
     Incident.findById(req.params.incidentId)
     .then(incident => {
         if (incident) {

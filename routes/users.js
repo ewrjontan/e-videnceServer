@@ -21,7 +21,7 @@ router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, ne
 //for registration
 router.post('/register', (req, res) => {
     User.register(
-        new User({username: req.body.username}),
+        new User({username: (req.body.username).toLowerCase()}),
         req.body.password,
         (err, user) => {
           if (err) {
@@ -35,6 +35,10 @@ router.post('/register', (req, res) => {
 
               if (req.body.lastname) {
                   user.lastname = req.body.lastname;
+              }
+
+              if (req.body.agency) {
+                user.agency = req.body.agency;
               }
 
               if (req.body.email) {
@@ -65,7 +69,7 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
     const token = authenticate.getToken({_id: req.user._id});
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.json({success: true, token: token, status: 'You are successfully logged in!'});
+    res.json({success: true, token: token, status: 'You are successfully logged in!', userId: req.user._id});
 });
 
 
@@ -80,7 +84,18 @@ router.get('/logout', (req, res, next) => {
         err.status = 401;
         return next(err);
     }
-})
+});
+
+/* GET user by Id. */
+router.get('/:userId', authenticate.verifyUser, (req, res, next) => {
+    User.findById(req.params.userId)
+    .then(user => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(user);
+    })
+    .catch(err => next(err));
+});
 
 //For Facebook OAuth
 /*router.get('/facebook/token', passport.authenticate('facebook-token'), (req, res) => {
