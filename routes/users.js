@@ -72,13 +72,17 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
     res.json({success: true, token: token, status: 'You are successfully logged in!', userId: req.user._id});
 });
 
+//add this below res.clearCookie in logout router if needed
+//res.redirect('/'); //redirects back to route path
 
 //for user logout
 router.get('/logout', (req, res, next) => {
     if (req.session) {
         req.session.destroy();
         res.clearCookie('session-id');
-        res.redirect('/'); //redirects back to route path
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({success: true, status: 'You are successfully logged out!'});
     }else {//client is trying to logout without being logged in
         const err = new Error('You have logged out!');
         err.status = 401;

@@ -1,8 +1,6 @@
 const express = require('express');
 const Incident = require('../models/incident');
 const authenticate = require('../authenticate');
-
-
 const incidentRouter = express.Router();
 
 
@@ -41,7 +39,6 @@ incidentRouter.route('/')
 });
 
 
-
 incidentRouter.route('/:incidentId')
 .get(authenticate.verifyUser, (req, res, next) => {
     Incident.findById(req.params.incidentId)
@@ -76,7 +73,6 @@ incidentRouter.route('/:incidentId')
     })
     .catch(err => next(err));
 });
-
 
 
 /*
@@ -147,7 +143,6 @@ incidentRouter.route('/:incidentId/items')
     })
     .catch(err => next(err));
 });
-
 
 
 incidentRouter.route('/:incidentId/items/:itemId')

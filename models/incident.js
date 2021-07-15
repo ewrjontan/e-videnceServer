@@ -19,11 +19,6 @@ const itemSchema = new Schema({
         type: String,
         required: true
     },
-    //for attaching user Id
-    /*collector: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },*/
     collectedBy: {
         type: String,
     }
