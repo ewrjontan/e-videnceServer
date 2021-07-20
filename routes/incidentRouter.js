@@ -2,10 +2,12 @@ const express = require('express');
 const Incident = require('../models/incident');
 const authenticate = require('../authenticate');
 const incidentRouter = express.Router();
+const cors = require('./cors');
 
 
 incidentRouter.route('/')
-.get(authenticate.verifyUser, (req, res, next) => {
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, authenticate.verifyUser, (req, res, next) => {
     Incident.find()
     .then(incidents => {
         res.statusCode = 200;
@@ -14,7 +16,7 @@ incidentRouter.route('/')
     })
     .catch(err => next(err));
 })
-.post(authenticate.verifyUser, (req, res, next) => {
+.post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     Incident.create(req.body)
     .then(incident => {
         console.log('Incident created ', incident);
@@ -24,11 +26,11 @@ incidentRouter.route('/')
     })
     .catch(err => next(err));
 })
-.put(authenticate.verifyUser, (req, res) => {
+.put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end('PUT operation not supported on /incidents');
 })
-.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Incident.deleteMany()
     .then(response => {
         res.statusCode = 200;
@@ -40,7 +42,8 @@ incidentRouter.route('/')
 
 
 incidentRouter.route('/:incidentId')
-.get(authenticate.verifyUser, (req, res, next) => {
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, authenticate.verifyUser, (req, res, next) => {
     Incident.findById(req.params.incidentId)
     .then(incident => {
         res.statusCode = 200;
@@ -49,11 +52,11 @@ incidentRouter.route('/:incidentId')
     })
     .catch(err => next(err));
 })
-.post(authenticate.verifyUser, (req, res) => {
+.post(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end(`POST operation not supported on /incidents/${req.params.incidentId}`);
 })
-.put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Incident.findByIdAndUpdate(req.params.incidentId, {
         $set: req.body
     }, { new: true})
@@ -64,7 +67,7 @@ incidentRouter.route('/:incidentId')
     })
     .catch(err => next(err));
 })
-.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Incident.findByIdAndDelete(req.params.incidentId)
     .then(response => {
         res.statusCode = 200;
@@ -80,7 +83,8 @@ For Items
 */
 
 incidentRouter.route('/:incidentId/items')
-.get(authenticate.verifyUser,(req, res, next) => {
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+.get(cors.cors, authenticate.verifyUser,(req, res, next) => {
     Incident.findById(req.params.incidentId)
     .then(incident => {
         if (incident) {
@@ -95,7 +99,7 @@ incidentRouter.route('/:incidentId/items')
     })
     .catch(err => next(err));
 })
-.post(authenticate.verifyUser,(req, res, next) => {
+.post(cors.corsWithOptions, authenticate.verifyUser,(req, res, next) => {
     Incident.findById(req.params.incidentId)
     .then(incident => {
         if (incident) {
@@ -109,18 +113,18 @@ incidentRouter.route('/:incidentId/items')
             })
             .catch(err => next(err)); 
         } else{
-            err = new Error(`Campsite ${req.params.incidentId} not found`);
+            err = new Error(`Incident ${req.params.incidentId} not found`);
             err.status = 404;
             return next(err);
         }
     })
     .catch(err => next(err));
 })
-.put(authenticate.verifyUser, (req, res) => {
+.put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end(`PUT operation not supported on /campsites/${req.params.incidentId}/items`);
 })
-.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     //deletes every document in collection
     Incident.findById(req.params.incidentId)
     .then(incident => {
@@ -146,7 +150,8 @@ incidentRouter.route('/:incidentId/items')
 
 
 incidentRouter.route('/:incidentId/items/:itemId')
-    .get(authenticate.verifyUser, (req, res, next) => {
+    .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+    .get(cors.cors, authenticate.verifyUser, (req, res, next) => {
         Incident.findById(req.params.incidentId)
         //.populate('comments.author')
         .then(incident => {
@@ -166,11 +171,11 @@ incidentRouter.route('/:incidentId/items/:itemId')
         })
         .catch(err => next(err));
     })
-    .post(authenticate.verifyUser, (req, res) => {
+    .post(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
         res.statusCode = 403;
         res.end(`POST operation not supported on /incidents/${req.params.incidentId}/items/${req.params.itemId}`);
     })
-    .put(authenticate.verifyUser, (req, res, next) => {
+    .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
         Incident.findById(req.params.incidentId)
         //.populate('comments.author')
         .then(incident => {
@@ -211,7 +216,7 @@ incidentRouter.route('/:incidentId/items/:itemId')
         })
         .catch(err => next(err));        
     })
-    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         //deletes every document in collection
         Incident.findById(req.params.incidentId)
         .then(incident => {

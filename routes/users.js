@@ -2,13 +2,13 @@ const express = require('express');
 const User = require('../models/user');
 const passport = require('passport');
 const authenticate = require('../authenticate');
-//const cors = require('./cors');
+const cors = require('./cors');
 
 
 const router = express.Router();
 
 /* GET users listing. */
-router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+router.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     User.find()
     .then(users => {
         res.statusCode = 200;
@@ -19,7 +19,7 @@ router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, ne
 });
 
 //for registration
-router.post('/register', (req, res) => {
+router.post('/register', cors.corsWithOptions, (req, res) => {
     User.register(
         new User({username: (req.body.username).toLowerCase()}),
         req.body.password,
@@ -65,7 +65,7 @@ router.post('/register', (req, res) => {
 
 
 //for login
-router.post('/login', passport.authenticate('local'), (req, res) => {
+router.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res) => {
     const token = authenticate.getToken({_id: req.user._id});
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
@@ -76,13 +76,14 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
 //res.redirect('/'); //redirects back to route path
 
 //for user logout
-router.get('/logout', (req, res, next) => {
+router.get('/logout', cors.corsWithOptions, (req, res, next) => {
     if (req.session) {
         req.session.destroy();
         res.clearCookie('session-id');
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json({success: true, status: 'You are successfully logged out!'});
+        //res.statusCode = 200;
+        //res.setHeader('Content-Type', 'application/json');
+        //res.json({success: true, status: 'You are successfully logged out!'});
+        //res.redirect('/');
     }else {//client is trying to logout without being logged in
         const err = new Error('You have logged out!');
         err.status = 401;
@@ -91,7 +92,7 @@ router.get('/logout', (req, res, next) => {
 });
 
 /* GET user by Id. */
-router.get('/:userId', authenticate.verifyUser, (req, res, next) => {
+router.get('/:userId', cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     User.findById(req.params.userId)
     .then(user => {
         res.statusCode = 200;
